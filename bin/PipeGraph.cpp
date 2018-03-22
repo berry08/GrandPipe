@@ -14,6 +14,7 @@
 #include "gc.h"
 using namespace::std;
 int visited[MAXV];
+int ready[MAXV];
 /*
 #define MAXV 100
 int visited[MAXV];
@@ -209,7 +210,6 @@ void Graph::Tran_sub(int index){
 			}
 		}
 	}
-	
 }
 void Graph::Traverse(){
 	vector<int> zero_innode,one_innode,multi_innode;
@@ -276,7 +276,122 @@ void Graph::Traverse(){
 		sleep(200);
 	}
 }
-
+void Graph::Tran_sub_test(int index){
+	string stepid=raw_graph.pipelist[index].v_data;
+	cout<<"process step:\t"<<stepid<<endl;
+	vector<int> in_nodes=get_in_node(index);
+	if(in_nodes.size()==0){
+		if(!check_container(stepid,env_para)){
+			run_container(stepid,env_para);
+		}
+	}else if(in_nodes.size()>=1){
+		while(1){
+			int all_done=1;
+			for(vector<int>::iterator ix=in_nodes.begin();ix!=in_nodes.end();ix++){
+				string cur_stepid=raw_graph.pipelist[*ix].v_data;
+				if(!check_container(cur_stepid,env_para)){
+					all_done=0;
+					cout<<stepid<<" is waiting for:"<<cur_stepid<<endl;
+					break;
+				}
+			}
+			cout<<stepid<<":ready?"<<all_done<<endl;
+			if(all_done==1){
+				if(!check_container(stepid,env_para)){
+					run_container(stepid,env_para);
+				}
+				break;
+			}else{
+				sleep(5);
+			}
+		}
+	}
+	vector<int> out_nodes=get_out_node(index);
+	if(out_nodes.size()==0){
+		//cout<<"node 0:\t"<<getpid()<<endl;
+		sleep(2);
+	}else if(out_nodes.size()==1){
+		anode *edge=raw_graph.pipelist[index].firstarc;
+		//cout<<"node 1\t"<<getpid()<<endl;
+		Tran_sub(edge->targetVex);
+	}else{
+		pid_t pid[out_nodes.size()-1];
+		for(int i=0;i<out_nodes.size();i++){
+			if((pid[i]=fork())==0){
+				//cout<<getpid()<<endl;
+				Tran_sub(out_nodes[i]);
+				exit(0);
+			}else if(pid[i]>0){
+				//cout<<"parent pid:\t"<<getpid()<<endl;
+			}else{
+				cerr<<"fork error"<<endl;
+				exit(1);
+			}
+		}
+	}
+}
+void Graph::Traverse_test(){
+	for(int i=0;i<raw_graph.num_vertex;i++){
+		visited[i]=0;
+		if(get_in_node(i).size()==0){
+			ready[i]=1;
+			//Tran_sub_test(i);
+		}
+	}
+	
+	int request_num=raw_graph.num_vertex;
+	while(1){
+		int done_num=0;
+		vector<string> ready_to_run;
+		for(int i=0;i<raw_graph.num_vertex;i++){
+			string stepid=raw_graph.pipelist[i].v_data;
+			//cout<<stepid<<"\t"<<check_container(stepid,env_para)<<"\t";
+			if(check_container(stepid,env_para)>0){
+				done_num++;
+			}else{
+				vector<int> in_nodes=get_in_node(i);
+				int all_done=1;
+				for(vector<int>::iterator ix=in_nodes.begin();ix!=in_nodes.end();ix++){
+					string cur_stepid=raw_graph.pipelist[*ix].v_data;
+					if(!check_container(cur_stepid,env_para)){
+						all_done=0;
+						//cout<<stepid<<" is waiting for:"<<cur_stepid<<endl;
+						break;
+					}
+				}
+				//cout<<stepid<<":ready?"<<all_done<<endl;
+				if(all_done==1){
+					if(!check_container(stepid,env_para) && visited[i]==0){
+						ready_to_run.push_back(stepid);
+					}else{
+						visited[i]=1;
+					}
+				}
+			}
+		}
+		for(vector<string>::iterator ix=ready_to_run.begin();ix!=ready_to_run.end();ix++){
+			pid_t new_pid;
+			int tmp_index=get_vnode(*ix);
+			visited[tmp_index]=1;
+			if((new_pid=fork())==0){
+				run_container(*ix,env_para);
+				exit(0);
+			}else if(new_pid<0){
+				cerr<<"fork error"<<endl;
+				exit(1);
+			}else{
+			}
+		}
+		//cout<<endl;
+		//cout<<"request_num:\t"<<request_num<<endl;
+		//cout<<"have done:\t"<<done_num<<endl;
+		if(request_num==done_num){
+			break;
+		}
+		sleep(60);
+	}
+	
+}
 /*
 int main(){
 	vector<string> steps;

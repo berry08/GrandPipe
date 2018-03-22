@@ -12,11 +12,39 @@ using namespace::std;
 
 //int run_container(string fid,string root_dir,string output_dir,string output_prefix){
 int check_container(string fid,cmd_para &env_para){
-
+	/*string whole_out=env_para.output_dir+"/"+env_para.output_prefix;
+	string out_test=whole_out+".test.out";
+	if(fid=="a0"){
+		string dir=env_para.output_dir;
+		string cmd="mkdir -p "+dir;
+		string file_path=whole_out+".test.out";
+		string cmd2="touch "+file_path;
+		if(system(cmd.c_str())==-1)
+			cerr<<"system error"<<endl;
+		if(system(cmd2.c_str())==-1)
+			cerr<<"system error"<<endl;
+		return 1;
+	}
+	ifstream if_out(out_test.c_str());
+	if(!if_out){
+		cerr<<"Error:cannot open such file,"<<out_test<<endl;
+		exit(1);
+	}
+	string tmp_line;
+	int value=0;
+	string q_str=fid+".";
+	while(getline(if_out,tmp_line)){
+		if(tmp_line.find(q_str)!=string::npos){
+			value=1;
+			break;
+		}
+	}
+	return value;
+	*/
 	if(fid=="mkdir_p"){
 		vector<string> v_raw_fq=env_para.m_config["fastq_file"];
 		if(v_raw_fq.size()!=2){
-			cerr<<"Error,no only support PE fastq"<<endl;
+			cerr<<"Error,now only support PE fastq"<<endl;
 			exit(1);
 		}
 		string fq1,fq2;
@@ -109,8 +137,26 @@ int check_container(string fid,cmd_para &env_para){
 			cerr<<"Error:mkdir error"<<endl;
 			exit(1);
 		}
-		return 1;
+		//return 1;
 	}
+	string whole_out=env_para.output_dir+"/"+env_para.output_prefix;
+	string done_log=whole_out+".total.log";
+	ifstream if_done_log;
+	if_done_log.open(done_log.c_str());
+	string check_str=fid+" done!";
+	string tmp_line;
+	int return_value=0;
+	while(getline(if_done_log,tmp_line)){
+		if(tmp_line==check_str){
+			if_done_log.close();
+			return 1;
+		}
+	}
+	if_done_log.close();
+	return return_value;
+	
+	
+	/*
 	if(fid=="trim"){
 		string whole_out=env_para.output_dir+"/"+env_para.output_prefix;
 		string log_file=whole_out+".trim.e.log";
@@ -307,4 +353,5 @@ int check_container(string fid,cmd_para &env_para){
 		string final_file=whole_out+".flagstat";
 		return file_exist_and_not_empty(final_file);
 	}
+	*/
 }

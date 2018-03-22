@@ -2,13 +2,14 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <stdlib.h>
 #include "PipeGraph.h"
 #include "pipeline.h"
 #include "gc.h"
 using namespace::std;
 
 Graph createPipeGraph(string bin_dir,string pipeline_name,cmd_para aaa){
-	map<string,string> m_name_filepath=create_m_name_filepath(bin_dir);
+	map<string,string> m_name_filepath=create_m_name_filepath(bin_dir,pipeline_name);
 	if(m_name_filepath.find(pipeline_name)==m_name_filepath.end())
 		cerr<<"Error:no such pipeline"<<endl;
 	string pipeline_file=m_name_filepath[pipeline_name];
@@ -40,15 +41,19 @@ Graph createPipeGraph(string bin_dir,string pipeline_name,cmd_para aaa){
 		if(relation_flag==1){
 			vector<string> line_eles;
 			line_split(pipe_file_line,'=',line_eles);
-			if(line_eles.size()!=2)
+			if(line_eles.size()!=2){
 				cerr<<"Error,relation format error"<<endl;
+				exit(1);
+			}
 			relations.insert(make_pair(line_eles[0],line_eles[1]));
 			relation_num++;
 		}
 	}
 	for(multimap<string,string>::iterator ix=relations.begin();ix!=relations.end();ix++){
-		if(s_steps.find(ix->first)==s_steps.end() || s_steps.find(ix->second)==s_steps.end())
+		if(s_steps.find(ix->first)==s_steps.end() || s_steps.find(ix->second)==s_steps.end()){
 			cerr<<"Error:at least one step is unrecognized,"<<ix->first<<","<<ix->second<<endl;
+			exit(1);
+		}
 	}
 	Graph pipe_graph(steps,relations,relation_num,aaa);
 	return pipe_graph;

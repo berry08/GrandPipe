@@ -4,5 +4,5 @@
 #include <map>
 using namespace::std;
 
-map<string,string>  create_m_name_filepath(string bin_dir);
+map<string,string>  create_m_name_filepath(string bin_dir,string pipe_name);
 #endif

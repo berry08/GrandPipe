@@ -12,12 +12,18 @@ exe9=stat_homo
 #exe10=simply_gender_decide
 INCLUDE = .
 
-obj=main.o gc.o PipeGraph.o create_pipe.o check_graph_exists.o pipeline.o global_cmd_para.o postprocess.o check.o run.o
+obj=main.o gc.o PipeGraph.o create_pipe.o check_graph_exists.o pipeline.o global_cmd_para.o postprocess.o check.o run.o add_done_flag.o wes_run.o wgs_run.o
+
 $(exe):$(obj)
 	$(cc) -o $(exe) $(obj)
 main.o:main.cpp gc.h PipeGraph.h create_pipe.h check_graph_exists.h pipeline.h global_cmd_para.h postprocess.h
 	$(cc) -c -O3 main.cpp
-
+add_done_flag.o:add_done_flag.cpp global_cmd_para.h
+	$(cc) -c -O3 add_done_flag.cpp
+wes_run.o:wes_run.cpp add_done_flag.h gc.h
+	$(cc) -c -O3 wes_run.cpp
+wgs_run.o:wgs_run.cpp add_done_flag.h gc.h
+	$(cc) -c -O3 wgs_run.cpp
 PipeGraph.o:PipeGraph.cpp check.h run.h gc.h
 	$(cc) -c -O3 PipeGraph.cpp
 create_pipe.o:create_pipe.cpp check.h run.h gc.h
@@ -32,7 +38,7 @@ postprocess.o:postprocess.cpp global_cmd_para.h
 	$(cc) -c -O3 postprocess.cpp
 check.o:check.cpp global_cmd_para.h gc.h
 	$(cc) -c -O3 check.cpp
-run.o:run.cpp gc.h
+run.o:run.cpp wes_run.h wgs_run.h add_done_flag.h gc.h
 	$(cc) -c -O3 run.cpp
 gc.o:gc.cpp
 	$(cc) -c -O3 gc.cpp

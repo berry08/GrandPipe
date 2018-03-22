@@ -125,6 +125,7 @@ int main(int argc,char* argv[]){
 		}
 		stat_hom_het(hd_vcf_file,het_snp,hom_snp);
 	}
+	cout<<het_snp<<"\t"<<hom_snp<<endl;
 	float het_ratio=0;
 	if(het_snp!=0 || hom_snp!=0){
 		int total_snp=het_snp+hom_snp;
@@ -170,5 +171,6 @@ void stat_hom_het(string i_vcf_file,int &het,int &hom){
 			hom++;
 		}
 	}
+	cout<<het<<"\t"<<hom<<endl;
 	vcf_if.close();
 }

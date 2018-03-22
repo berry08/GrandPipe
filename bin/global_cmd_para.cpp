@@ -7,10 +7,14 @@
 #include "gc.h"
 using namespace::std;
 
-cmd_para::cmd_para(string a,string b,string c,string d){
+cmd_para::cmd_para(string a,string b,string c,string pipeline_name,string d){
 	bin_dir=a;
 	output_dir=b;
 	output_prefix=c;
+	pipe_name="";
+	for(string::size_type ix=0;ix!=pipeline_name.size();ix++){
+		pipe_name.insert(pipe_name.end(),tolower(pipeline_name[ix]));
+	}
 	ifstream if_config(d.c_str());
 	string config_line;
 	string step_name;
@@ -30,6 +34,7 @@ cmd_para::cmd_para(){
 	bin_dir="";
 	output_dir="";
 	output_prefix="";
+	pipe_name="";
 	m_config.clear();
 	m_config2.clear();
 }

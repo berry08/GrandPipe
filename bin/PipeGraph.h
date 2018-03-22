@@ -39,6 +39,8 @@ public:
 	//BFSTraverse(algraph raw_graph);
 	void Traverse();
 	void Tran_sub(int index);
+	void Traverse_test();
+	void Tran_sub_test(int index);
 	void DFSTraverse();
 	void DFS(int index);
 	void DFSTraverse2();

@@ -5,6 +5,7 @@
 #include <map>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include "gc.h"
 #include "PipeGraph.h"
 #include "create_pipe.h"
@@ -31,13 +32,14 @@ int main(int argc,char* argv[]){
 	if(exe_path.find("/")==string::npos)
 		bin_dir=get_absolute_path(exe_path);
 	bin_dir.erase(bin_dir.begin()+bin_dir.find_last_of("/"),bin_dir.end());
-	cmd_para env_parameter(bin_dir,output_dir_name,output_prefix,config_file_path);
+	cmd_para env_parameter(bin_dir,output_dir_name,output_prefix,pipeline_name,config_file_path);
 
 	if(!check_pipeGraph(output_dir_name,output_prefix))
 		pipe_graph=createPipeGraph(bin_dir,pipeline_name,env_parameter);
 	//print_cmd_para(bin_dir,output_dir_name,output_prefix);
 	//pipe_graph.DFSTraverse2();
-	pipe_graph.Traverse();
+	cout<<get_local_time()<<"\tAnalysis start!"<<endl;
+	pipe_graph.Traverse_test();
 	post_process(env_parameter);
 /*	while(!check_done())
 		run_uncomplished();
